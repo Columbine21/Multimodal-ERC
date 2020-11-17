@@ -8,7 +8,11 @@
 
 ### Introduction
 
-**Emotion Recognization in Conversation(ERC)** is one of the most popular subtasks of utterance-level dialogue understanding. The task is to predict the emotion labels (happy, sad, neutral, angry, excited, frustrated, disgust, and fear) of the constituent utterances $u_1, u_2, \cdots, u_n$, where utterance $u_i$ is uttered by speaker $P_{s(u_i)}$, while $s$ being the mapping between utterance and index of its corresponding speaker. 
+**Emotion Recognization in Conversation(ERC)** is one of the most popular subtasks of utterance-level dialogue
+
+ understanding. The task is to predict the emotion labels (happy, sad, neutral, angry, excited, frustrated, 
+
+disgust, and fear) of the constituent utterance, where each utterance is uttered by one specific speaker.
 
 ### Classification of existing methods
 
@@ -21,7 +25,11 @@ All existing model can be classified into 4 classes:
 
 #### Context Modeling Methods
 
-This kind of Methods focus on Modeling <u>CONTROLLING VARIABLES IN CONVERSATIONS</u> (proposed in the survey "Emotion Recognition in Conversation: Research Challenges, Datasets, and Recent Advances")  and <u>build complex context control module</u>.
+This kind of Methods focus on Modeling **CONTROLLING VARIABLES IN CONVERSATIONS** (proposed in
+
+ the survey "Emotion Recognition in Conversation: Research Challenges, Datasets, and Recent Advances")
+
+  and **build complex context control module**.
 
 Typical Methods：
 
@@ -34,7 +42,11 @@ Our Code Base: **NOW SUPPORT bc-lstm & dialogueRnn on IEMOCAP & MELD**
 
 #### Methods Transfered from MSA 
 
-This kind of Methods focus on how to use multimodal information on different multimodal datasets. But failed to take different speaker & speaker's history utterance into account. They are usually used to verify proposed multimodal methods having the ability of modeling context & speakers' info.
+This kind of Methods focus on how to use multimodal information on different multimodal datasets.
+
+ But failed to take different speaker & speaker's history utterance into account. They are usually used
+
+ to verify proposed multimodal methods having the ability of modeling context & speakers' info.
 
 Typical Methods:
 
@@ -47,7 +59,11 @@ Our Code Base: **NOW DEVELOPING**
 
 #### Memory Network Methods
 
-In the literature, memory networks have been successfully applied in many areas, including question-answering, machine translation , speech recognition, and others. Inspired by its capabilities of context modeling, Multi-hops  Memory Network is proposed in ERC Tasks, and verified to be effective somehow.
+In the literature, memory networks have been successfully applied in many areas, including 
+
+question-answering, machine translation, speech recognition, and others. Inspired by its capabilities of
+
+context modeling, Multi-hops  Memory Network is proposed in ERC Tasks, and verified to be effective.
 
 Typical Methods: 
 
