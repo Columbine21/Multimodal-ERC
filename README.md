@@ -25,10 +25,10 @@ This kind of Methods focus on Modeling <u>CONTROLLING VARIABLES IN CONVERSATIONS
 
 Typical Methods：
 
- 	1. bc-lstm: Context-Dependent Sentiment Analysis in User-Generated Videos [2017 02]
- 	2. DialogueRnn: DialogueRNN: An Attentive RNN for Emotion Detection in Conversations [2019 05]
+1. bc-lstm: Context-Dependent Sentiment Analysis in User-Generated Videos [2017 02]
+2. DialogueRnn: DialogueRNN: An Attentive RNN for Emotion Detection in Conversations [2019 05]
 
-Our Code Base: **NOW SUPPORT bc-lstm & dialogueRnn on IEMOCAP & MELD ** 
+Our Code Base: **NOW SUPPORT bc-lstm & dialogueRnn on IEMOCAP & MELD** 
 
 ​																	TO BE CONTINUE …
 
@@ -41,7 +41,7 @@ Typical Methods:
 1. TFN :Tensor Fusion Network for Multimodal Sentiment Analysis [2017 07]
 2. MFN: Memory Fusion Network for Multi-view Sequential Learning [2018 02]
 
-Our Code Base: **NOW SUPPORT bc-lstm & dialogueRnn on IEMOCAP & MELD ** 
+Our Code Base: **NOW DEVELOPING** 
 
 ​																	TO BE CONTINUE …
 
@@ -54,7 +54,7 @@ Typical Methods:
 1. CMN: CMN-Interactive conversational memory network for multimodal emotion detection [2018 06]
 2. ICON: ICON Interactive conversational memory network for multimodal emotion detection [2018 xx]
 
-Our Code Base: **NOW SUPPORT bc-lstm & dialogueRnn on IEMOCAP & MELD ** 
+Our Code Base: **NOW DEVELOPING** 
 
 ​																	TO BE CONTINUE …
 
@@ -64,10 +64,15 @@ This kind of Methods use different Graph Neural Network to make improvements in 
 
 Typical Methods:
 
-1. Congcn:Modeling both Context-and Speaker-Sensitive Dependence for Emotion Detection in Multi-speaker Conversations [2019 01]
-2. DialogueGCN: Dialoguegcn- A graph convolutional neural network for emotion recognition in conversation [2019 08]
+1. Congcn: Modeling both Context-and Speaker-Sensitive Dependence for Emotion Detect-
 
-Our Code Base: **NOW SUPPORT bc-lstm & dialogueRnn on IEMOCAP & MELD ** 
+   ion in Multi-speaker Conversations [2019 01]
+
+2. DialogueGCN: Dialoguegcn- A graph convolutional neural network for emotion recognition
+
+    in conversation [2019 08]
+
+Our Code Base: **NOW DEVELOPING** 
 
 ​																	TO BE CONTINUE …
 
