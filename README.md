@@ -4,11 +4,11 @@
 
 - Introduction.
 - Baseline Classifications And Implement (Public).
-- Updates & Timeline.
+- Updates And Timeline.
 
 ### Introduction
 
-**Emotion Recognization in Conversation(ERC)** is one of the most popular subtasks of utterance-level dialogue understanding. The task is to predict the emotion labels (happy, sad, neutral, angry, excited, frustrated, disgust, and fear) of the constituent utterances $u1,u2,...,ut$, where utterance ui is uttered by speaker ps(ui), while s being the mapping between utterance and index of its corresponding speaker. 
+**Emotion Recognization in Conversation(ERC)** is one of the most popular subtasks of utterance-level dialogue understanding. The task is to predict the emotion labels (happy, sad, neutral, angry, excited, frustrated, disgust, and fear) of the constituent utterances $u_1, u_2, \cdots, u_n$, where utterance $u_i$ is uttered by speaker $P_{s(u_i)}$, while $s$ being the mapping between utterance and index of its corresponding speaker. 
 
 ### Classification of existing methods
 
