@@ -22,13 +22,12 @@ def setup_seed(seed):
     torch.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None, train=False):
+def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None, mode='train'):
     losses, preds, labels, masks, losses_sense  = [], [], [], [], []
     
     max_sequence_len = []
-
-    assert not train or optimizer!=None
-    if train:
+    assert mode != 'train' or optimizer != None
+    if mode == 'train':
         model.train()
     else:
         model.eval()
@@ -36,7 +35,7 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
     with tqdm(dataloader) as td:
         for data in td:
 
-            if train:
+            if mode == 'train':
                 optimizer.zero_grad()
                 
             textf, text_len, acouf, mask, label = [d.cuda() for d in data[:-1]] if args.cuda else data[:-1]
@@ -54,7 +53,7 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
             masks.append(mask.view(-1).cpu().numpy())
             losses.append(loss.item()*masks[-1].sum())
 
-            if train:
+            if mode == 'train':
                 total_loss = loss
                 total_loss.backward()
                 
@@ -72,7 +71,9 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
 
     avg_accuracy = round(accuracy_score(labels,preds, sample_weight=masks)*100, 2)
     avg_fscore = round(f1_score(labels,preds, sample_weight=masks, average='weighted')*100, 2)
-    
+    if mode == 'test':
+        class_report = classification_report(labels, preds, sample_weight=masks, target_names=['neutral', 'surprise', 'fear', 'sadness', 'joy', 'disgust', 'anger'], digits=6)
+        print(class_report)
     return avg_loss, avg_accuracy, labels, preds, masks, [avg_fscore]
 
 
@@ -149,9 +150,9 @@ if __name__ == '__main__':
 
         for e in range(args.epochs):
             start_time = time.time()
-            train_loss, train_acc, _, _, _, train_fscore = train_or_eval_model(model, loss_function, dataloader['train'], e, optimizer, True)
-            valid_loss, valid_acc, _, _, _, valid_fscore = train_or_eval_model(model, loss_function, dataloader['valid'], e)
-            test_loss, test_acc, test_label, test_pred, test_mask, test_fscore = train_or_eval_model(model, loss_function, dataloader['test'], e)
+            train_loss, train_acc, _, _, _, train_fscore = train_or_eval_model(model, loss_function, dataloader['train'], e, optimizer, mode='train')
+            valid_loss, valid_acc, _, _, _, valid_fscore = train_or_eval_model(model, loss_function, dataloader['valid'], e, mode='valid')
+            test_loss, test_acc, test_label, test_pred, test_mask, test_fscore = train_or_eval_model(model, loss_function, dataloader['test'], e, mode='test')
                 
             valid_losses.append(valid_loss)
             valid_fscores.append(valid_fscore)
