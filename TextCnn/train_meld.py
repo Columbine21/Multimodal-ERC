@@ -6,7 +6,7 @@ import torch
 
 import torch.optim as optim
 from model import MaskedNLLLoss, CnnModel
-from dataloader import IEMOCAPDataLoader
+from dataloader import MELDDataLoader
 
 
 from sklearn.metrics import f1_score, confusion_matrix, accuracy_score, classification_report
@@ -39,9 +39,10 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
             if train:
                 optimizer.zero_grad()
                 
-            textf, text_len, visuf, acouf, party_mask, mask, label = [d.cuda() for d in data[:-1]] if args.cuda else data[:-1]
+            textf, text_len, acouf, mask, label = [d.cuda() for d in data[:-1]] if args.cuda else data[:-1]
             
-            log_prob = model(textf, text_len, visuf, acouf, party_mask, mask)
+            
+            log_prob = model(textf, text_len, None, acouf, None, mask)
 
             lp_ = log_prob.transpose(0,1).contiguous().view(-1, log_prob.size()[2]) # batch*seq_len, n_classes
             labels_ = label.view(-1) # batch*seq_len
@@ -79,14 +80,17 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_workers', type=int, default=0,
                         help='num workers of loading data')
+
+    # dataset settings
+    parser.add_argument('--dataset', type=str, default='iemocap', help='which dataset to use.')
     
     # dataloader settings 
     parser.add_argument('--batch-size', type=int, default=16, metavar='BS', help='batch size')
-    parser.add_argument('--vocabPath', type=str, default='./dataset/IEMOCAP_vocab.json')
-    parser.add_argument('--data_path', type=str, default='./dataset/IEMOCAP_features.pkl')
+    parser.add_argument('--vocabPath', type=str, default='./dataset/MELD_vocab.json')
+    parser.add_argument('--data_path', type=str, default='./dataset/MELD_features_raw.pkl')
 
     # model settings.
-    parser.add_argument('--glove_embedding_path', type=str, default='./dataset/IEMOCAP_embedding.pkl',
+    parser.add_argument('--glove_embedding_path', type=str, default='./dataset/MELD_embedding.pkl',
                         help='pretrain glove embedding path')
     parser.add_argument('--embedding_dim', type=int, default=300,
                         help='embedding dims to use')
@@ -94,10 +98,10 @@ def parse_args():
     parser.add_argument('--cnn_filters', type=int, default=50)
     parser.add_argument('--cnn_kernel_sizes', type=list, default=[3,4,5])
     parser.add_argument('--cnn_dropout', type=float, default=0.5)
-    parser.add_argument('--n_classes', type=int, default=6)
+    parser.add_argument('--n_classes', type=int, default=7)
     # late fusion module.
     parser.add_argument('--lateFusionModule', type=str, default='concat')
-    parser.add_argument('--input_features', type=tuple, default=(100, 100))
+    parser.add_argument('--input_features', type=tuple, default=(100, 300))
     parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(24, 7))
     parser.add_argument('--pre_fusion_dropout', type=float, default=0.4)
     parser.add_argument('--post_fusion_dropout', type=float, default=0.3)
@@ -125,19 +129,19 @@ if __name__ == '__main__':
         print(args)
 
         model = CnnModel(args)
-        print('IEMOCAP CNN MODULE ...')
+        print('MELD CNN MODULE ...')
 
         if args.cuda:
             model.cuda()
         
-        loss_weights = torch.FloatTensor([1/0.086747, 1/0.144406, 1/0.227883, 1/0.160585, 1/0.127711, 1/0.252668])
+        loss_weights = torch.FloatTensor([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
         
         loss_function  = MaskedNLLLoss(loss_weights.cuda() if args.cuda else loss_weights)
         
         optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
-        lf = open('logs/cnn_iemocap_logs.txt', 'a')
+        lf = open('logs/cnn_meld_logs.txt', 'a')
         
-        dataloader = IEMOCAPDataLoader(args)
+        dataloader = MELDDataLoader(args) 
 
         valid_losses, valid_fscores = [], []
         test_fscores, test_accuracys, test_losses = [], [], []
@@ -175,6 +179,6 @@ if __name__ == '__main__':
         print('@Best Valid Loss: Test Acc: {}, Test F1: {}'.format(acc_score1, f1_score1))
         print('@Best Valid F1: Test Acc: {}, Test F1: {}'.format(acc_score2, f1_score2))
 
-        rf = open('results/cnn_iemocap_results.txt', 'a')
+        rf = open('results/cnn_meld_results.txt', 'a')
         rf.write('\t'.join(scores) + '\t' + str(args) + '\n')
         rf.close()
