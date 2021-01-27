@@ -102,10 +102,11 @@ class CnnModel(nn.Module):
 
     def forward(self, text_f, seq_len, video, audio, party_mask, mask):
         # print(text_f.shape, seq_len.shape, audio.shape, party_mask.shape, mask.shape)
+        # torch.Size([74, 16, 100]) torch.Size([16, 74]) torch.Size([16, 74, 100]) torch.Size([16, 74, 2]) torch.Size([16, 74])
         text_feature = self.cnn_feat_extractor(text_f, mask)
-        video = video.transpose(1, 0).contiguous()
+        
         audio = audio.transpose(1, 0).contiguous()
-        utterance_feature = self.late_fusion_module(text_feature, audio, video)
+        utterance_feature = self.late_fusion_module(text_feature, audio)
 
         log_prob = F.log_softmax(self.classifier(utterance_feature), 2)
         return log_prob

@@ -32,19 +32,7 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
         model.train()
     else:
         model.eval()
-    # with tqdm(dataloader) as td:
-    #     for batch_data in td:
-    #         textf, text_len, visuf, acouf, party_mask, mask, label = batch_data[:-1]
-
-            # print(textf.shape)
-            # print(text_len)
-            # print(visuf.shape)
-            # print(acouf.shape)
-            # print(party_mask.shape)
-            # print(mask.shape)
-            # print(label.shape)
-            # exit()
-    # seed_everything(seed)
+    
     with tqdm(dataloader) as td:
         for data in td:
 
@@ -52,11 +40,6 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
                 optimizer.zero_grad()
                 
             textf, text_len, visuf, acouf, party_mask, mask, label = [d.cuda() for d in data[:-1]] if args.cuda else data[:-1]
-            # print(textf.shape)
-            # print(text_len.shape)
-            # print(visuf.shape, acouf.shape)
-            # print(party_mask.shape, mask.shape, label.shape)
-            # exit()
             
             log_prob = model(textf, text_len, visuf, acouf, party_mask, mask)
 
@@ -113,9 +96,9 @@ def parse_args():
     parser.add_argument('--cnn_dropout', type=float, default=0.5)
     parser.add_argument('--n_classes', type=int, default=6)
     # late fusion module.
-    parser.add_argument('--lateFusionModule', type=str, default='tfn')
-    parser.add_argument('--input_features', type=tuple, default=(100, 512, 100))
-    parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(20, 5, 5))
+    parser.add_argument('--lateFusionModule', type=str, default='concat')
+    parser.add_argument('--input_features', type=tuple, default=(100, 100))
+    parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(24, 7))
     parser.add_argument('--pre_fusion_dropout', type=float, default=0.4)
     parser.add_argument('--post_fusion_dropout', type=float, default=0.3)
 
@@ -157,7 +140,7 @@ if __name__ == '__main__':
         dataloader = ERCDataLoader(args)
 
         valid_losses, valid_fscores = [], []
-        test_fscores, test_losses = [], []
+        test_fscores, test_accuracys, test_losses = [], [], []
         best_loss, best_label, best_pred, best_mask = None, None, None, None
 
         for e in range(args.epochs):
@@ -169,6 +152,7 @@ if __name__ == '__main__':
             valid_losses.append(valid_loss)
             valid_fscores.append(valid_fscore)
             test_losses.append(test_loss)
+            test_accuracys.append(test_acc)
             test_fscores.append(test_fscore)
                 
             x = 'epoch: {}, train_loss: {}, acc: {}, fscore: {}, valid_loss: {}, acc: {}, fscore: {}, test_loss: {}, acc: {}, fscore: {}, time: {} sec'.format(e+1, train_loss, train_acc, train_fscore, valid_loss, valid_acc, valid_fscore, test_loss, test_acc, test_fscore, round(time.time()-start_time, 2))
@@ -177,16 +161,19 @@ if __name__ == '__main__':
             lf.write(x + '\n')
 
         valid_fscores = np.array(valid_fscores).transpose()
-        test_fscores = np.array(test_fscores).transpose()
+        test_fscores = np.array(test_fscores).transpose() # [1, epoches]
+        test_accuracys = np.array(test_accuracys).transpose() # [epoches]
 
-        score1 = test_fscores[0][np.argmin(valid_losses)]
-        score2 = test_fscores[0][np.argmax(valid_fscores[0])]
-        scores = [score1, score2]
+        f1_score1 = test_fscores[0][np.argmin(valid_losses)]
+        acc_score1 = test_accuracys[np.argmin(valid_losses)]
+        f1_score2 = test_fscores[0][np.argmax(valid_fscores[0])]
+        acc_score2 = test_accuracys[np.argmax(valid_fscores[0])]
+        scores = [acc_score1, f1_score1, acc_score2, f1_score2]
         scores = [str(item) for item in scores]
 
         print ('Test Scores: Weighted F1')
-        print('@Best Valid Loss: {}'.format(score1))
-        print('@Best Valid F1: {}'.format(score2))
+        print('@Best Valid Loss: Test Acc: {}, Test F1: {}'.format(acc_score1, f1_score1))
+        print('@Best Valid F1: Test Acc: {}, Test F1: {}'.format(acc_score2, f1_score2))
 
         rf = open('results/cosmic_iemocap_results.txt', 'a')
         rf.write('\t'.join(scores) + '\t' + str(args) + '\n')
