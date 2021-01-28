@@ -86,7 +86,7 @@ def parse_args():
     parser.add_argument('--bi_direction', type=bool, default=True)
     parser.add_argument('--listener_state', type=bool, default=False)
     
-    parser.add_argument('--utterance_dim', type=int, default=600,
+    parser.add_argument('--utterance_dim', type=int, default=100,
                         help='embedding dims to use')
     parser.add_argument('--global_state_dim', type=int, default=500)
     parser.add_argument('--personal_state_dim', type=int, default=500)
@@ -100,7 +100,7 @@ def parse_args():
 
     # late fusion module.
     parser.add_argument('--lateFusionModule', type=str, default='concat')
-    parser.add_argument('--input_features', type=tuple, default=(600, 300))
+    parser.add_argument('--input_features', type=tuple, default=(100, 100))
     parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(24, 7))
     parser.add_argument('--pre_fusion_dropout', type=float, default=0.7)
     parser.add_argument('--post_fusion_dropout', type=float, default=0.3)
@@ -111,6 +111,8 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=0.0005, metavar='LR', help='learning rate')
     parser.add_argument('--l2', type=float, default=0.00001, metavar='L2', help='L2 regularization weight')
     parser.add_argument('--epochs', type=int, default=100, metavar='E', help='number of epochs')
+
+    return parser.parse_args()
 
 if __name__ == '__main__':
     args = parse_args()

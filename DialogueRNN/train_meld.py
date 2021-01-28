@@ -38,10 +38,10 @@ def train_or_eval_model(model, loss_function, dataloader, epoch, optimizer=None,
             if mode == 'train':
                 optimizer.zero_grad()
                 
-            textf, acouf, mask, label = [d.cuda() for d in data[:-1]] if args.cuda else data[:-1]
+            textf, acouf, party_mask, mask, label = [d.cuda() for d in data[:-1]] if args.cuda else data[:-1]
             
             
-            log_prob = model(textf, None, acouf, None, mask)
+            log_prob = model(textf, None, acouf, party_mask, mask)
 
             lp_ = log_prob.transpose(0,1).contiguous().view(-1, log_prob.size()[2]) # batch*seq_len, n_classes
             labels_ = label.view(-1) # batch*seq_len
@@ -102,7 +102,7 @@ def parse_args():
     parser.add_argument('--n_classes', type=int, default=7)
 
     # late fusion module.
-    parser.add_argument('--lateFusionModule', type=str, default='concat')
+    parser.add_argument('--lateFusionModule', type=str, default='text')
     parser.add_argument('--input_features', type=tuple, default=(600, 300))
     parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(24, 7))
     parser.add_argument('--pre_fusion_dropout', type=float, default=0.7)
