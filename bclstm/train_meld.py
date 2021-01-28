@@ -84,16 +84,16 @@ def parse_args():
     
     # dataloader settings 
     parser.add_argument('--batch-size', type=int, default=32, metavar='BS', help='batch size')
-    parser.add_argument('--data_path', type=str, default='../TextCnn/dataset/IEMOCAP_features.pkl')
+    parser.add_argument('--data_path', type=str, default='../TextCnn/dataset/MELD_features_raw.pkl')
 
     # model settings.
     parser.add_argument('--attention_type', type=str, default='general2')
-    parser.add_argument('--utterance_dim', type=int, default=100,
+    parser.add_argument('--utterance_dim', type=int, default=600,
                         help='embedding dims to use')
     parser.add_argument('--emotion_state_dim', type=int, default=100)
     parser.add_argument('--hidden_layer_dim', type=int, default=100)
     parser.add_argument('--dropout', type=float, default=0.25)
-    parser.add_argument('--n_classes', type=int, default=6)
+    parser.add_argument('--n_classes', type=int, default=7)
     # late fusion module.
     parser.add_argument('--lateFusionModule', type=str, default='concat')
     parser.add_argument('--input_features', type=tuple, default=(100, 300))
@@ -123,8 +123,8 @@ if __name__ == '__main__':
         
         print(args)
 
-        model = CnnModel(args)
-        print('MELD CNN MODULE ...')
+        model = BC_LSTM(args)
+        print('MELD BC_LSTM MODULE ...')
 
         if args.cuda:
             model.cuda()

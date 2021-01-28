@@ -93,7 +93,7 @@ def parse_args():
     parser.add_argument('--dropout', type=float, default=0.25)
     parser.add_argument('--n_classes', type=int, default=6)
     # late fusion module.
-    parser.add_argument('--lateFusionModule', type=str, default='concat')
+    parser.add_argument('--lateFusionModule', type=str, default='text')
     parser.add_argument('--input_features', type=tuple, default=(100, 100))
     parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(24, 7))
     parser.add_argument('--pre_fusion_dropout', type=float, default=0.4)
@@ -121,8 +121,8 @@ if __name__ == '__main__':
         
         print(args)
 
-        model = CnnModel(args)
-        print('IEMOCAP CNN MODULE ...')
+        model = BC_LSTM(args)
+        print('IEMOCAP BC_LSTM MODULE ...')
 
         if args.cuda:
             model.cuda()

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from fusion import fusionPlugin
 
 class MaskedNLLLoss(nn.Module):
 
@@ -83,20 +84,19 @@ class BC_LSTM(nn.Module):
         super(BC_LSTM, self).__init__()
 
         self.args = args
-        # if args.fusion == 'text':
-        #     args.utterance_dim = args.input_features[0] # i.e. text_dim
-        # elif args.fusion == 'concat':
-        #     args.utterance_dim = args.input_features[0] + args.input_features[1] + args.input_features[2]
-
-        self.late_fusion_module = fusionPlugin(args)
 
         self.dropout = nn.Dropout(args.dropout)
         self.lstm = nn.LSTM(args.utterance_dim, args.emotion_state_dim, num_layers=2, bidirectional=True, dropout=args.dropout)
 
         if args.attention_type is not None:
             self.matchattn = MatchingAttention(2*args.emotion_state_dim, 2*args.emotion_state_dim, att_type=args.attention_type)
+        
+        # build fusion arguements.
+        args.text_fusion_input = 2 * args.emotion_state_dim
+        args.audio_fusion_input = args.input_features[1]
 
-        self.linear = nn.Linear(2*args.emotion_state_dim, args.hidden_layer_dim)
+        self.late_fusion_module = fusionPlugin(args)
+        self.linear = nn.Linear(args.post_fusion_dim, args.hidden_layer_dim)
         self.smax_fc = nn.Linear(args.hidden_layer_dim, args.n_classes)
 
     def forward(self, text, video, audio, party_mask, mask):
@@ -104,10 +104,8 @@ class BC_LSTM(nn.Module):
         modalities -> seq_len, batch, D_x
         qmask -> seq_len, batch, party
         """
-        # use some fusion strategy to improve the model.
-        utterance = self.late_fusion_module(text, video, audio)
-
-        contextual_feature, _ = self.lstm(utterance)
+        # print(audio.shape)
+        contextual_feature, _ = self.lstm(text)
 
         attn_weights = []
 
@@ -119,9 +117,11 @@ class BC_LSTM(nn.Module):
                 attn_weights.append(attn_weight_t.squeeze(1))
             attn_results = torch.cat(attn_results, dim=0)
             # attn_weights = torch.cat(attn_weights, dim=0)
-            hidden = F.relu(self.linear(attn_results))
+            fusion_results = self.late_fusion_module(attn_results, audio)
+            hidden = F.relu(self.linear(fusion_results))
         else:
-            hidden = F.relu(self.linear(contextual_feature))
+            fusion_results = self.late_fusion_module(contextual_feature, audio)
+            hidden = F.relu(self.linear(fusion_results))
         
         hidden = self.dropout(hidden)
         log_prob = F.log_softmax(self.smax_fc(hidden), 2)

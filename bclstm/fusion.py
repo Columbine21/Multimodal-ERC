@@ -16,9 +16,9 @@ class textOnly(nn.Module):
     def __init__(self, args):
         super(textOnly, self).__init__()
         # dimensions are specified in the order of audio and text
-        self.text_in, self.audio_in = args.input_features
+        self.text_in, self.audio_in = args.text_fusion_input, args.audio_fusion_input
         # write utterance_dim into args. 
-        args.utterance_dim = self.text_in
+        args.post_fusion_dim = self.text_in
 
     def forward(self, text_x, audio_x):
         '''
@@ -33,9 +33,9 @@ class TAConcat(nn.Module):
     def __init__(self, args):
         super(TAConcat, self).__init__()
         # dimensions are specified in the order of audio and text
-        self.text_in, self.audio_in = args.input_features
+        self.text_in, self.audio_in = args.text_fusion_input, args.audio_fusion_input
         # write utterance_dim into args. 
-        args.utterance_dim = self.text_in + self.audio_in
+        args.post_fusion_dim = self.text_in + self.audio_in
 
     def forward(self, text_x, audio_x):
         '''
@@ -63,14 +63,14 @@ class TFN(nn.Module):
         super(TFN, self).__init__()
 
         # dimensions are specified in the order of audio, video and text
-        self.text_in, self.audio_in = args.input_features
+        self.text_in, self.audio_in = args.text_fusion_input, args.audio_fusion_input
         self.text_hidden, self.audio_hidden = args.pre_fusion_hidden_dims
         self.pre_fusion_dropout = args.pre_fusion_dropout
         self.post_fusion_dropout = args.post_fusion_dropout
         self.post_fusion_dim = self.text_in # use text_in dim for the utterance representation dim. & use residents.
 
         # write utterance_dim into args.
-        args.utterance_dim = self.post_fusion_dim
+        args.post_fusion_dim = self.post_fusion_dim
 
         # define the pre-fusion subnetworks
         self.trans_audio = nn.Sequential()

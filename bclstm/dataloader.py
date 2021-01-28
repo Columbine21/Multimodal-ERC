@@ -55,7 +55,7 @@ def IEMOCAPDataLoader(args):
     dataLoader['valid'] = DataLoader(datasets['valid'], batch_size=args.batch_size,
                                             collate_fn=datasets['valid'].collate_fn, num_workers=args.num_workers)
     dataLoader['test' ] = DataLoader(datasets['test'], batch_size=args.batch_size,
-                                            collate_fn=datasets[' test'].collate_fn, num_workers=args.num_workers)
+                                            collate_fn=datasets['test'].collate_fn, num_workers=args.num_workers)
     
     return dataLoader
 
@@ -90,7 +90,7 @@ class MELDDataset(Dataset):
 
     def collate_fn(self, data):
         dat = pd.DataFrame(data)
-        return [pad_sequence(dat[i]) if i<3 else pad_sequence(dat[i], True) if i<5 else dat[i].tolist() for i in dat]
+        return [pad_sequence(dat[i]) if i<2 else pad_sequence(dat[i], True) if i<4 else dat[i].tolist() for i in dat]
 
 def MELDDataLoader(args):
     """
@@ -109,6 +109,6 @@ def MELDDataLoader(args):
     dataLoader['valid'] = DataLoader(datasets['valid'], batch_size=args.batch_size,
                                             collate_fn=datasets['valid'].collate_fn, num_workers=args.num_workers)
     dataLoader['test' ] = DataLoader(datasets['test'], batch_size=args.batch_size,
-                                            collate_fn=datasets[' test'].collate_fn, num_workers=args.num_workers)
+                                            collate_fn=datasets['test'].collate_fn, num_workers=args.num_workers)
     
     return dataLoader
