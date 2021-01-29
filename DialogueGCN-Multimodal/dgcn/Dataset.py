@@ -3,7 +3,6 @@ import random
 
 import torch
 
-
 class Dataset:
 
     def __init__(self, samples, batch_size):

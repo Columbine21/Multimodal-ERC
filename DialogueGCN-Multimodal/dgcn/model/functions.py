@@ -6,7 +6,7 @@ import dgcn
 log = dgcn.utils.get_logger()
 
 
-def batch_graphify(features, lengths, speaker_tensor, wp, wf, edge_type_to_idx, att_model, device):
+def batch_graphify(features, audio, lengths, speaker_tensor, wp, wf, edge_type_to_idx, att_model, device):
     """
     features: [batch_size, max_dialogue_len, utterance_rep_dim]
     lengths: [batch_size, ] each dialogue length.
@@ -17,7 +17,7 @@ def batch_graphify(features, lengths, speaker_tensor, wp, wf, edge_type_to_idx, 
             1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0])
     """
-    node_features, edge_index, edge_norm, edge_type = [], [], [], []
+    node_features, audio_features, edge_index, edge_norm, edge_type = [], [], [], [], []
     batch_size = features.size(0)
     length_sum = 0
     edge_ind = []
@@ -31,6 +31,7 @@ def batch_graphify(features, lengths, speaker_tensor, wp, wf, edge_type_to_idx, 
     for j in range(batch_size):
         cur_len = lengths[j].item()
         node_features.append(features[j, :cur_len, :])
+        audio_features.append(audio[j, :cur_len, :])
         perms = edge_perms(cur_len, wp, wf)
         perms_rec = [(item[0] + length_sum, item[1] + length_sum) for item in perms]
         length_sum += cur_len
@@ -50,15 +51,15 @@ def batch_graphify(features, lengths, speaker_tensor, wp, wf, edge_type_to_idx, 
             edge_type.append(edge_type_to_idx[str(speaker1) + str(speaker2) + c])
 
     node_features = torch.cat(node_features, dim=0).to(device)  # [E, D_g]
+    audio_features = torch.cat(audio_features, dim=0).to(device) # [E, D_audio]
     edge_index = torch.stack(edge_index).t().contiguous().to(device)  # [2, E]
     edge_norm = torch.stack(edge_norm).to(device)  # [E]
     edge_type = torch.tensor(edge_type).long().to(device)  # [E]
     edge_index_lengths = torch.tensor(edge_index_lengths).long().to(device)  # [B]
-    # print(node_features.shape, edge_index.shape, edge_norm.shape, edge_type.shape, edge_index_lengths.shape)
     # print(edge_norm[:20], edge_type[:20])
     # torch.Size([1567, 200]) torch.Size([2, 29387]) torch.Size([29387]) torch.Size([29387]) torch.Size([32])
     # exit()
-    return node_features, edge_index, edge_norm, edge_type, edge_index_lengths
+    return node_features, audio_features, edge_index, edge_norm, edge_type, edge_index_lengths
 
 
 def edge_perms(length, window_past, window_future):

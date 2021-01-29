@@ -55,6 +55,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="train.py")
+    parser.add_argument("--dataset", type=str, default="iemocap")
     parser.add_argument("--data", type=str, required=True,
                         help="Path to data")
 
@@ -95,21 +96,16 @@ if __name__ == "__main__":
                         help="Use class weights in nll loss.")
     
     # TODO : here add fuison selection.
-    parser.add_argument("--fusion", type=str, default="tfn",
+    parser.add_argument("--lateFusionModule", type=str, default="concat",
                         help="which fusion strategy to use.")
+    parser.add_argument('--input_features', type=tuple, default=(100, 100))
+    parser.add_argument('--pre_fusion_hidden_dims', type=tuple, default=(24, 7))
     parser.add_argument("--pre_fusion_dropout", type=float, default=0.3,
                         help="tfn fusion module hyper-parameters")
     parser.add_argument("--post_fusion_dropout", type=float, default=0.3,
                         help="tfn fusion module hyper-parameters")
     
-    # others
-    # parser.add_argument("--seed", type=int, default=24,
-    #                     help="Random seed.")
     args = parser.parse_args()
-    
-    # TODO : here add fuison selection.
-    args.input_features = (100, 512, 100)
-    args.pre_fusion_hidden_dims = (20, 20, 20)
 
     # five epoches average.
     seed_list = [1, 11, 111, 1111, 11111]
